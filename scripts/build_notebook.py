@@ -125,6 +125,61 @@ cells = [
     ),
     md(
         """
+        ## Dataset quality control
+
+        Before doing descriptor-heavy analysis, check whether the tracked input file has missing identifiers, duplicate ligand records, or inconsistent receptor-to-family assignments. These QC outputs are useful both for debugging and for explaining the limitations of the dataset in the final report.
+        """
+    ),
+    code(
+        """
+        missingness_summary = pd.DataFrame(
+            {
+                "Column": df.columns,
+                "Missing_Count": [int(df[column].isna().sum()) for column in df.columns],
+                "Missing_Percent": [round(float(df[column].isna().mean() * 100), 3) for column in df.columns],
+                "Unique_Non_Null": [int(df[column].nunique(dropna=True)) for column in df.columns],
+                "Dtype": [str(df[column].dtype) for column in df.columns],
+            }
+        ).sort_values(["Missing_Count", "Column"], ascending=[False, True])
+
+        dedup_key = df["InChIKey"].fillna(df["Ligand_ID"]) if "InChIKey" in df.columns else df["Ligand_ID"]
+        duplicate_mask = dedup_key.duplicated(keep=False)
+        duplicate_candidates = df.loc[
+            duplicate_mask,
+            ["PDB_ID", "Ligand_ID", "Ligand_Name", "InChIKey", "QueryGene", "NR_Family", "Chemical_Family"],
+        ].copy()
+        duplicate_candidates.insert(0, "DedupKey", dedup_key.loc[duplicate_mask].astype(str))
+        duplicate_candidates = duplicate_candidates.sort_values(["DedupKey", "PDB_ID", "Ligand_Name"])
+
+        receptor_family_map = pd.crosstab(df["QueryGene"], df["NR_Family"]).sort_index()
+
+        data_integrity_summary = pd.DataFrame(
+            [
+                {
+                    "Total_Rows": int(len(df)),
+                    "Unique_Receptors": int(df["QueryGene"].nunique()),
+                    "Unique_NR_Families": int(df["NR_Family"].nunique()),
+                    "Unique_Chemical_Families": int(df["Chemical_Family"].nunique()),
+                    "Missing_Ligand_ID": int(df["Ligand_ID"].isna().sum()),
+                    "Duplicate_Ligand_ID": int(df["Ligand_ID"].dropna().duplicated().sum()),
+                    "Duplicate_InChIKey": int(df["InChIKey"].dropna().duplicated().sum()) if "InChIKey" in df.columns else 0,
+                    "Duplicate_Candidate_Rows": int(duplicate_mask.sum()),
+                }
+            ]
+        )
+
+        missingness_summary.to_csv(PROCESSED_DIR / "missingness_summary.csv", index=False)
+        duplicate_candidates.to_csv(PROCESSED_DIR / "duplicate_candidates.csv", index=False)
+        receptor_family_map.to_csv(PROCESSED_DIR / "receptor_family_map.csv")
+        data_integrity_summary.to_csv(PROCESSED_DIR / "data_integrity_summary.csv", index=False)
+
+        display(data_integrity_summary)
+        display(missingness_summary.head(10))
+        display(duplicate_candidates.head(10))
+        """
+    ),
+    md(
+        """
         ## Helper functions
 
         These helpers standardize family naming, calculate molecular descriptors, and keep export logic consistent across the workflow.
@@ -222,7 +277,7 @@ cells = [
         analysis_df.to_csv(analysis_path, index=False)
 
         print(f"Processed table saved to: {analysis_path}")
-        analysis_df.head()
+        display(analysis_df.head())
         """
     ),
     md(
@@ -312,7 +367,7 @@ cells = [
         - one t-SNE colored by **family**
         - one t-SNE colored by the **top receptors**, with all remaining receptors grouped as `Other`
 
-        This avoids the duplicated, overcrowded legends from earlier drafts.
+        This avoids the duplicated, overcrowded legends from earlier drafts and makes each figure answer a different question.
         """
     ),
     code(

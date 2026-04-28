@@ -1,0 +1,13 @@
+Column,Missing_Count,Missing_Percent,Unique_Non_Null,Dtype
+Ligand_ID,1,0.073,1354,str
+Chemical_Family,0,0.0,9,str
+Formula,0,0.0,1191,str
+InChIKey,0,0.0,1355,str
+Ligand_Name,0,0.0,1355,str
+Molecular_Weight,0,0.0,1188,float64
+NR_Family,0,0.0,3,str
+PDB_ID,0,0.0,1301,str
+QueryGene,0,0.0,34,str
+SMILES,0,0.0,1319,str
+SMILES_NoH,0,0.0,1319,str
+UniProtID,0,0.0,34,str
