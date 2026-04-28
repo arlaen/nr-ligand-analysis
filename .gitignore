@@ -1,0 +1,18 @@
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+
+# Large or one-off source artifacts kept outside the repo
+*.zip
+*.pdf
+*.pse
+*.pdb
+
+# Local notebook and analysis output
+tmp/
+output/
+data/raw/
+
+# OS/editor noise
+Thumbs.db
+.DS_Store

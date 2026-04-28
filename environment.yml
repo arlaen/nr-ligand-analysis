@@ -1,0 +1,13 @@
+name: nr-ligand-analysis
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - requests
+  - jupyterlab
+  - rdkit

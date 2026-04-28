@@ -1,0 +1,4 @@
+NR_Family,Ligand_Count,Unique_Receptors,Unique_Chemical_Families,Mean_Input_Molecular_Weight
+Non-steroid,624,16,7,426.8566217948718
+Steroid,542,6,3,389.5761992619926
+Orphan,211,12,3,456.44881990521327
